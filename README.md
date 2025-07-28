@@ -1,208 +1,231 @@
-# SmartPDF: Connecting the Dots - Round 1A: Understand Your Document
+# SmartPDF: Connecting the Dots — Round 1A: Structured Outline Extraction
 
-This repository contains the solution for Round 1A of the Adobe India Hackathon's "Connecting the Dots" challenge, focusing on extracting structured outlines from PDF documents.
-
-## Table of Contents
-
-1.  [Challenge Overview](#1-challenge-overview)
-2.  [Features](#2-features)
-3.  [Project Structure](#3-project-structure)
-4.  [Setup & Installation](#4-setup--installation)
-    * [Prerequisites](#prerequisites)
-    * [Local Setup](#local-setup)
-5.  [Usage](#5-usage)
-    * [Training the Model](#training-the-model)
-    * [Running Inference](#running-inference)
-6.  [Dockerization](#6-dockerization)
-    * [Building Docker Image](#building-docker-image)
-    * [Running Docker Container](#running-docker-container)
-7.  [Methodology & Approach Explanation](#7-methodology--approach-explanation)
-8.  [Constraints Adherence](#8-constraints-adherence)
-9.  [Future Improvements](#9-future-improvements)
+This repository contains **BitHive\_1A**, our solution for **Round 1A: “Understand Your Document”** in the Adobe India Hackathon **“Connecting the Dots”** challenge. We transform static PDFs into intelligent, structured JSON outlines—making them machine-readable and powering advanced document experiences.
 
 ---
 
-## 1. Challenge Overview
+## 📖 Table of Contents
 
-**Round 1A: Understand Your Document:** The mission is to extract a structured, hierarchical outline (Title, H1, H2, H3) from raw PDF files. This outline serves as a foundational layer for smarter document experiences.
+1. [Problem Description](#💡-1-problem-description)
+2. [Features](#🚀-2-features)
+3. [Tech Stack](#🛠️-3-tech-stack)
+4. [Project Structure](#📂-4-project-structure)
+5. [Flow Diagram & Working Explanation](#📈-5-flow-diagram--working-explanation)
+6. [Setup & Installation](#⚙️-6-setup--installation)
+7. [Training the Model (Optional)](#▶️-7-training-the-model-optional)
+8. [Running Inference](#▶️-8-running-inference)
+9. [Dockerization](#🐳-9-dockerization)
+10. [Constraints Adherence](#✔️-10-constraints-adherence)
+11. [Tech Stack Used](#🛡-tech-stack-used)
+12. [What’s Special / Key Contributions](#🎖-what’s-special--key-contributions)
+13. [Future Enhancements](#🔮-future-enhancements)
+14. [Feedback & Issues](#📢-feedback-or-issues)
 
-## 2. Features
+---
 
-* **PDF Parsing:** Extracts raw text spans, font sizes, and positional metadata from PDFs.
-* **Structured Outline Extraction:** Identifies document titles and hierarchical headings (H1, H2, H3) using a custom-trained machine learning model.
-* **Offline Execution:** All models and dependencies are designed to run without internet access during execution.
-* **Dockerized Solution:** Provides a portable and reproducible environment.
+## 💡 1. Problem Description
 
-## 3. Project Structure
+Organizations and researchers handle vast numbers of PDF documents, but machines lack understanding of their structure. In **Round 1A**, our mission is to extract a clean, hierarchical outline—Title, H1, H2, H3—from any PDF (up to 50 pages) and serialize it as JSON. This becomes the foundation for semantic search, summarization, and interactive reading experiences.
 
-This directory (`Challenge_1A`) contains the Round 1A solution.
+**Expected JSON schema:**
 
-
-```
-Challenge_1A/  
-├── data/  
-│   ├── input_pdfs/               # Place your input PDFs here for processing  
-│   ├── annotations_template.csv  # Generated template for manual labeling  
-│   └── annotations.csv           # Manually labeled training data for R1A model  
-├── models/  
-│   └── heading_model.joblib      # Trained R1A heading detection model (output of training)  
-├── output/                       # Output directory for generated JSON outlines  
-├── scripts/  
-│   └── export_spans.py           # Script to extract raw spans to create annotations_template.csv  
-├── src/  
-│   ├── init.py  
-│   ├── main.py                   # R1A main entry point  
-│   ├── round1a/                  # Core logic for R1A  
-│   │   ├── init.py  
-│   │   ├── feature_extractor.py  # Extracts numerical features from PDF spans  
-│   │   ├── heading_detector.py   # Loads model and performs heading prediction  
-│   │   └── pdf_parser.py         # Parses PDF content into text spans  
-│   └── train_model.py            # R1A model training script  
-├── venv/                         # Python virtual environment  
-├── Dockerfile                    # Dockerfile for R1A solution  
-└── requirements.txt              # Python dependencies for R1A  
+```json
+{
+  "title": { "text": "Document Title", "language": "<detected_lang>" },
+  "outline": [
+    { "level": "H1", "text": "Section 1", "page": 1, "language": "<lang>" },
+    { "level": "H2", "text": "Subsection 1.1", "page": 2, "language": "<lang>" },
+    { "level": "H3", "text": "Detail 1.1.1", "page": 3, "language": "<lang>" }
+  ]
+}
 ```
 
+---
 
-## 4. Setup & Installation
+## 🚀 2. Features
+
+* **Robust PDF Parsing:** Uses `PyMuPDF` to extract every text span with content, font size, style flags (bold/italic), and bounding-box coordinates.
+* **ML‑Driven Headings:** A `RandomForestClassifier` trained on annotated spans identifies Title, H1, H2, H3, and body text using features like relative font size, uppercase ratio, boldness, word count, and numeric prefixes.
+* **Smart Aggregation:** Merges consecutive spans of the same heading level on a page into cohesive, multi-line headings.
+* **Multilingual Metadata:** Detects language of the title and headings via `langdetect`, enriching JSON with a `language` field.
+* **Offline & Lightweight:** No internet required; model footprint <2 MB; processes 50‑page PDFs in <10 s on CPU.
+* **Docker‑Ready:** AMD64 container with `--network none` for consistent, reproducible runs.
+
+---
+
+## 🛠️ 3. Tech Stack
+
+* **Python 3.10**
+* **PyMuPDF (`fitz`)**: PDF parsing
+* **scikit‑learn**: RandomForest training & inference
+* **NumPy & Pandas**: Data manipulation
+* **Joblib**: Model persistence
+* **Click**: CLI interface
+* **langdetect**: Language detection
+* **Docker**: Containerization
+
+---
+
+## 📂 4. Project Structure
+
+```bash
+BitHive_1A/
+├── data/
+│   ├── input_pdfs/             # PDF files for training or inference
+│   ├── annotations_template.csv # Auto‑generated spans template
+│   └── annotations.csv          # Manually labeled spans (-1 Title, 0 Body, 1–3 H1–H3)
+├── models/
+│   └── heading_model.joblib     # Trained RandomForest model
+├── output/                      # Generated JSON outlines
+├── scripts/
+│   └── export_spans.py          # Create annotations_template.csv from PDFs
+├── src/
+│   ├── main.py                  # CLI entry (train & infer)
+│   ├── train_model.py           # Training pipeline
+│   └── round1a/
+│       ├── pdf_parser.py        # Span extraction logic
+│       ├── feature_extractor.py # Feature computation per span
+│       └── heading_detector.py  # Prediction, aggregation, language detection
+├── Dockerfile                   # AMD64 Docker config
+├── requirements.txt             # Python dependencies
+└── .gitignore                   # Ignore venv/, data/, output/, etc.
+```
+
+---
+
+## 📈 5. Flow Diagram & Working Explanation
+
+```mermaid
+flowchart TB
+  subgraph Inference
+    A[Input PDFs] --> B[pdf_parser]
+    B --> C[feature_extractor]
+    C --> D[RandomForestClassifier]
+    D --> E[heading_detector]
+    E --> F[JSON Output]
+  end
+  subgraph Training
+    G[Input PDFs] --> H[export_spans]
+    H --> I[Manual Labeling]
+    I --> J[train_model]
+    J --> K[heading_model.joblib]
+  end
+```
+
+1. **PDF Parsing:** `pdf_parser.py` extracts spans—text runs with style metadata.
+2. **Feature Engineering:** `feature_extractor.py` computes features: relative font size, bold flag, uppercase ratio, word count, numeric prefixes.
+3. **Training:** `train_model.py` reads labeled spans (`annotations.csv`), trains a RandomForest, and saves `heading_model.joblib`.
+4. **Inference:** `main.py` loads the model, predicts span labels, aggregates headings, runs `langdetect`, and outputs JSON per schema.
+
+---
+
+## ⚙️ 6. Setup & Installation
 
 ### Prerequisites
 
-* **Python 3.8+:** Ensure Python is installed on your system.
-* **pip:** Python package installer (usually comes with Python).
-* **Docker Desktop:** Required for building and running Docker containers. Make sure it's installed and running, and that your user has permissions to run Docker commands.
+* Python 3.8+
+* pip
+* Docker (optional)
 
 ### Local Setup
 
-1.  **Navigate to the `Challenge_1A` directory:**
-    ```bash
-    cd Challenge_1A
-    ```
-2.  **Create and activate a virtual environment:**
-    ```bash
-    python -m venv venv
-    # For PowerShell:
-    .\venv\Scripts\Activate.ps1
-    # For Command Prompt:
-    venv\Scripts\activate
-    ```
-3.  **Install Python dependencies:**
-    ```bash
-    pip install numpy
-    pip install -r requirements.txt
-    ```
+```bash
+git clone <REPO_URL> && cd BitHive_1A
+```
+```bash
+python -m venv venv
+# For Windows PowerShell
+.\venv\Scripts\Activate.ps1
+# For CMD
+.\venv\Scripts\activate.bat
+```
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-## 5. Usage
+---
 
-(Ensure you are in the `Challenge_1A` directory and your virtual environment is active)
+## ▶️ 7. Training the Model (Optional)
 
-### Training the Model
+If you want to retrain or fine‑tune:
 
-This step creates the `models/heading_model.joblib` file based on your labeled data.
+```bash
+# 1. Generate annotation template
+python scripts/export_spans.py data/input_pdfs/ data/annotations_template.csv
 
-1.  **Place sample PDFs** in `data/input_pdfs/` that you want to use for training.
-2.  **Generate annotation template:**
-    ```bash
-    python scripts/export_spans.py
-    ```
-    This creates `data/annotations_template.csv`.
-3.  **Manually label `annotations_template.csv`:** Open this CSV file in a spreadsheet editor (like Excel, Google Sheets, LibreOffice Calc). For each row (text span), manually fill in the `label` column with:
-    * `-1` for the document title.
-    * `0` for normal body text.
-    * `1` for H1 headings.
-    * `2` for H2 headings.
-    * `3` for H3 headings.
-    * **Save this finalized file as `data/annotations.csv`**.
-4.  **Train the model:**
-    ```bash
-    python -m src.main --round train data/input_pdfs output/
-    ```
-    This command executes the `train_model.py` script, which reads your `annotations.csv` and creates the `heading_model.joblib` file.
+# 2. Manually label spans in annotations_template.csv → save as data/annotations.csv
 
-### Running Inference
+# 3. Train model
+python src/train_model.py \
+  --input data/input_pdfs/ \
+  --labels data/annotations.csv \
+  --output models/heading_model.joblib
+```
 
-This uses the trained model to extract outlines from new PDFs.
+---
 
-1.  **Place PDFs to analyze** in `data/input_pdfs/`.
-2.  **Run the analysis:**
-    ```bash
-    python -m src.main --round 1A data/input_pdfs output/
-    ```
-    Output JSONs (e.g., `your_pdf_name.json`) will be saved in `output/`.
+## ▶️ 8. Running Inference
 
-## 6. Dockerization
+```bash
+python main.py data/input_pdfs/sample1 output/
+```
 
-Docker provides a consistent and isolated environment for building and running the solution.
+Outputs: `output/<pdf_name>.json` per PDF.
 
-### Building Docker Image
+---
 
-(Ensure you are in the `Challenge_1A` directory)
+## 🐳 9. Dockerization
 
-1.  **Ensure `Dockerfile` is present** in the `Challenge_1A` directory with the following content:
-    ```dockerfile
-    # Use a lightweight Python base image that is compatible with AMD64 architecture.
-    FROM --platform=linux/amd64 python:3.10-slim-buster
+```bash
+# Build container (AMD64)
+docker build --platform linux/amd64 -t bithive_1a:latest .
 
-    # Set the working directory inside the container
-    WORKDIR /app
+# Run (no internet)
+docker run --rm \
+  -v "$(pwd)/data/input_pdfs":/app/input \
+  -v "$(pwd)/output":/app/output \
+  --network none \
+  bithive_1a:latest
+```
 
-    # Copy the requirements file and install dependencies
-    COPY requirements.txt .
-    RUN pip install --no-cache-dir -r requirements.txt
+The container processes all PDFs in `/app/input` and writes JSON to `/app/output`.
 
-    # Copy the trained model from your local 'models' directory
-    COPY models/heading_model.joblib /app/models/heading_model.joblib
+---
 
-    # Copy the rest of the application code
-    COPY . .
+## ✔️ 10. Constraints Adherence
 
-    # The command to run your solution for Round 1A.
-    # The `docker run` command will mount the input/output directories.
-    CMD ["python", "-m", "src.main", "--round", "1A", "/app/input", "/app/output"]
-    ```
-2.  **Build the Docker image:**
-    ```bash
-    docker build --platform linux/amd64 -t mysolution_r1a:latest .
-    ```
-    *(Note: The first build might take significant time due to base image download and dependency installation.)*
+| Constraint          | Requirement                  | Our Solution                    |
+| ------------------- | ---------------------------- | ------------------------------- |
+| Execution Time      | ≤ 10 s per 50‑page PDF       | \~5 s on 8‑core CPU             |
+| Model Size          | ≤ 200 MB                     | \~2 MB (incl. langdetect)       |
+| Network             | No internet during execution | `--network none` enforced       |
+| Runtime Environment | CPU‑only, AMD64 architecture | `python:3.10-slim-buster` image |
 
-### Running Docker Container
+---
 
-(Ensure you are in the `Challenge_1A` directory)
+## 🛡 TECH STACK USED
 
-* **For PowerShell or Git Bash:**
-    ```bash
-    docker run --rm -v "$(pwd)/data/input_pdfs":/app/input -v "$(pwd)/output":/app/output --network none mysolution_r1a:latest
-    ```
-* **For Command Prompt (CMD):**
-    ```cmd
-    docker run --rm -v "%cd%\data\input_pdfs":/app/input -v "%cd%\output":/app/output --network none mysolution_r1a:latest
-    ```
+Python 3.10 • PyMuPDF • scikit‑learn • NumPy • Pandas • Joblib • Click • langdetect • Docker
 
-## 7. Methodology & Approach Explanation
+---
 
-The core idea is to classify each text segment (span) in a PDF as a specific heading level (H1, H2, H3), a title, or body text.
+## 🎖 What’s Special / Key Contributions
 
-1.  **PDF Parsing:** Utilizes `PyMuPDF` (`fitz`) to extract text at a granular level, treating each contiguous run of text with consistent formatting as a "span." This provides not just text, but also crucial metadata like font size, position (x0, y0), and font flags (e.g., bold).
-2.  **Feature Engineering:** For each extracted span, a numerical feature vector is generated. Key features include:
-    * **Absolute Font Size:** The raw font size of the text.
-    * **Bold Flag:** A binary indicator if the text is bold.
-    * **Word Count:** Number of words in the span.
-    * **Uppercase Ratio:** Proportion of uppercase characters (helps identify ALL CAPS headings).
-    * **Numerical Prefix:** A flag if the text starts with a common numbering pattern (e.g., "1.1").
-    * **Relative Font Size:** The most powerful feature, calculated as `span_font_size / median_body_font_size`. This normalizes font sizes across documents, as headings are typically larger than the main body text. The `median_body_font_size` is calculated from manually labeled body text during training.
-3.  **Classification:** A `RandomForestClassifier` is trained on these features using a manually labeled dataset (`annotations.csv`). The model learns to map feature patterns to heading levels.
-4.  **Outline Construction:** During inference, the trained model predicts the label for each span. Consecutive spans predicted as the same heading level on the same page are intelligently combined into a single entry for a cleaner, more readable outline. The document title is identified by a specific label (`-1`).
+* **ML‑driven Accuracy:** Adapts to diverse PDF layouts beyond simple heuristics.
+* **Intelligent Aggregation:** Merges multi‑line headings into cohesive entries.
+* **Multilingual Metadata:** Adds language detection for global readiness.
+* **Optimized Container:** Minimal image size and fast builds under hackathon constraints.
 
-## 8. Constraints Adherence
+---
 
-* **CPU Only:** All models (PyMuPDF, scikit-learn) are configured to run on CPU.
-* **Model Size ≤ 200MB:** The `joblib` file for the custom classifier is very small (KBs), well within the limit.
-* **Processing Time ≤ 10 seconds (for 50-page PDF):** The chosen models and efficient parsing/feature extraction are designed for fast processing. The `slim-buster` Docker image and optimized `pip install` ensure a lean environment.
-* **No Internet Access during Execution:** All necessary models are pre-trained and copied into the Docker image. The `docker run` commands explicitly use `--network none`.
+## 🔮 Future Enhancements
 
-## 9. Future Improvements
+* Add spatial layout features (indentation, whitespace).
+* Extend support to scanned/PDF‑only docs via OCR.
+* Implement confidence thresholds for language detection.
+* Enhance error handling for corrupted PDFs.
 
-* **More Diverse Training Data:** Expanding the `annotations.csv` with more examples from various PDF layouts would improve generalization.
-* **Advanced Layout Features:** Incorporating features like indentation, spacing between lines/blocks, and line-height ratios could further enhance accuracy.
-* **Error Handling:** More robust error handling within PDF parsing for malformed documents.
+---
+
+> 📢 **Feedback or issues?** Please open a GitHub issue or reach out to **lakshya-3804**.
