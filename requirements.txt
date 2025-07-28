@@ -1,0 +1,6 @@
+click
+PyMuPDF==1.23.2
+scikit-learn
+pandas
+joblib
+langdetect
