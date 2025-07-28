@@ -152,15 +152,12 @@ If you want to retrain or fine‑tune:
 
 ```bash
 # 1. Generate annotation template
-python scripts/export_spans.py data/input_pdfs/ data/annotations_template.csv
+python scripts/export_spans.py
 
 # 2. Manually label spans in annotations_template.csv → save as data/annotations.csv
 
 # 3. Train model
-python src/train_model.py \
-  --input data/input_pdfs/ \
-  --labels data/annotations.csv \
-  --output models/heading_model.joblib
+python -m src.main --round train data/input_pdfs output/
 ```
 
 ---
@@ -168,7 +165,7 @@ python src/train_model.py \
 ## ▶️ 8. Running Inference
 
 ```bash
-python main.py data/input_pdfs/sample1 output/
+python -m src.main --round 1A data/input_pdfs output/
 ```
 
 Outputs: `output/<pdf_name>.json` per PDF.
