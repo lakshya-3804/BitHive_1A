@@ -179,7 +179,8 @@ Outputs: `output/<pdf_name>.json` per PDF.
 docker build --platform linux/amd64 -t bithive_1a:latest .
 
 # Run (no internet)
-docker run --rm -v "${PWD}\data\input_pdfs":/app/input -v "${PWD}\output":/app/output --network none bithive_1a:latest
+docker run --rm -v "${PWD}\data\input_pdfs:/app/input" -v "${PWD}\output:/app/output" --network none bithive_1a:latest
+
 ```
 
 The container processes all PDFs in `/app/input` and writes JSON to `/app/output`.
