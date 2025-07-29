@@ -97,20 +97,27 @@ BitHive_1A/
 
 ```mermaid
 flowchart TB
+  %% TRAINING FLOW (top)
+  subgraph Training
+    direction TB
+    G[Input PDFs] --> H[export_spans]
+    H --> I[Manual Labeling]
+    I --> J[train_model]
+    J --> K[heading_model.joblib]
+  end
+
+  %% INFERENCE FLOW (below)
   subgraph Inference
+    direction TB
     A[Input PDFs] --> B[pdf_parser]
     B --> C[feature_extractor]
     C --> D[RandomForestClassifier]
     D --> E[heading_detector]
     E --> F[JSON Output]
   end
-  subgraph Training
-    G[Input PDFs] --> H[export_spans]
-    H --> I[Manual Labeling]
-    I --> J[train_model]
-    J --> K[heading_model.joblib]
-  end
+
 ```
+
 
 1. **PDF Parsing:** `pdf_parser.py` extracts spans—text runs with style metadata.
 2. **Feature Engineering:** `feature_extractor.py` computes features: relative font size, bold flag, uppercase ratio, word count, numeric prefixes.
