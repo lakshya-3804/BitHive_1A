@@ -1,0 +1,30 @@
+{
+    "title": "Parsippany -Troy Hills STEM Pathways",
+    "title_language": "en",
+    "outline": [
+        {
+            "level": "H1",
+            "text": "Mission Statement:",
+            "page": 1,
+            "language": "en"
+        },
+        {
+            "level": "H1",
+            "text": "PATHWAY OPTIONS REGULAR PATHWAY",
+            "page": 1,
+            "language": "pt"
+        },
+        {
+            "level": "H3",
+            "text": "Goals:",
+            "page": 1,
+            "language": "ca"
+        },
+        {
+            "level": "H2",
+            "text": "Technology",
+            "page": 2,
+            "language": "cy"
+        }
+    ]
+}

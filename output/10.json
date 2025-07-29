@@ -1,0 +1,30 @@
+{
+    "title": "10.pdf",
+    "title_language": "unknown",
+    "outline": [
+        {
+            "level": "H2",
+            "text": "Syllabus",
+            "page": 1,
+            "language": "tr"
+        },
+        {
+            "level": "H2",
+            "text": "Instructor:",
+            "page": 1,
+            "language": "ro"
+        },
+        {
+            "level": "H2",
+            "text": "Introduction",
+            "page": 1,
+            "language": "en"
+        },
+        {
+            "level": "H2",
+            "text": "Audience",
+            "page": 2,
+            "language": "fr"
+        }
+    ]
+}

@@ -1,0 +1,66 @@
+{
+    "title": "Computer Systems Technology Department",
+    "title_language": "en",
+    "outline": [
+        {
+            "level": "H1",
+            "text": "Course Description",
+            "page": 1,
+            "language": "fr"
+        },
+        {
+            "level": "H2",
+            "text": "Course Objectives",
+            "page": 1,
+            "language": "fr"
+        },
+        {
+            "level": "H1",
+            "text": "General Education Outcomes:",
+            "page": 2,
+            "language": "en"
+        },
+        {
+            "level": "H2",
+            "text": "Prerequisites",
+            "page": 2,
+            "language": "fr"
+        },
+        {
+            "level": "H1",
+            "text": "Required Materials",
+            "page": 2,
+            "language": "en"
+        },
+        {
+            "level": "H4",
+            "text": "edition.  Boston: Cengage Learning",
+            "page": 2,
+            "language": "en"
+        },
+        {
+            "level": "H1",
+            "text": "Academic Integrity Policy",
+            "page": 2,
+            "language": "en"
+        },
+        {
+            "level": "H3",
+            "text": "Grading",
+            "page": 2,
+            "language": "af"
+        },
+        {
+            "level": "H1",
+            "text": "Course Outline",
+            "page": 2,
+            "language": "fr"
+        },
+        {
+            "level": "H1",
+            "text": "Assessment criteria:",
+            "page": 4,
+            "language": "ca"
+        }
+    ]
+}
